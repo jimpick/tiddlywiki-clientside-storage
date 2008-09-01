@@ -512,6 +512,132 @@ Also see AdvancedOptions</pre>
 <div title="SiteTitle" modifier="JimPick" created="200809010442" modified="200809010450" changecount="3">
 <pre>~Client-Side Storage</pre>
 </div>
+<div title="trivial1" modifier="JimPick" created="200808142045" server.host="none" server.page.revision="1" server.type="trivial" changecount="0" server.workspace="default">
+<pre>trivial 1</pre>
+</div>
+<div title="trivial2" modifier="JimPick" created="200808142045" server.host="none" server.page.revision="1" server.type="trivial" changecount="1" server.workspace="default">
+<pre>trivial 2</pre>
+</div>
+<div title="TrivialAdaptorPlugin" modifier="JimPick" created="200808141600" modified="200808141601" tags="systemConfig" changecount="1">
+<pre>//{{{
+
+// Borrows liberally from TiddlyWebAdaptorPlugin and FileAdaptor
+
+function TrivialAdaptor()
+{
+}
+
+TrivialAdaptor.prototype = new AdaptorBase();
+
+TrivialAdaptor.serverType = 'trivial'; // MUST BE LOWER CASE
+
+TrivialAdaptor.prototype.getWorkspaceList = function(context,userParams,callback)
+{
+	console.log(&quot;Jim1: getWorkspaceList &quot; + context)
+	context = this.setContext(context,userParams,callback);
+        context.workspaces = [{title:&quot;(default)&quot;}];
+        context.status = true;
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+        return true;
+};
+
+TrivialAdaptor.prototype.getTiddlerList = function(context,userParams,callback)
+{
+	console.log(&quot;Jim1: getTiddlerList &quot; + context)
+	context = this.setContext(context,userParams,callback);
+
+	context.tiddlers = [];
+
+	tiddler1 = new Tiddler(&quot;trivial1&quot;);
+	tiddler1.fields['server.type'] = TrivialAdaptor.serverType;
+	tiddler1.fields['server.workspace'] = &quot;default&quot;;
+	tiddler1.fields['server.page.revision'] = &quot;2&quot;;
+	context.tiddlers.push(tiddler1);
+
+	tiddler2 = new Tiddler(&quot;trivial2&quot;);
+	tiddler2.fields['server.type'] = TrivialAdaptor.serverType;
+	tiddler2.fields['server.workspace'] = &quot;default&quot;;
+	tiddler2.fields['server.page.revision'] = &quot;1&quot;;
+	context.tiddlers.push(tiddler2);
+
+	context.status = true;
+
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+
+	return true;
+};
+
+TrivialAdaptor.prototype.getTiddlerRevision = function(title,revision,context,userParams,callback)
+{
+	context = this.setContext(context,userParams,callback);
+	if(revision) {
+		context.revision = revision;
+	}
+	return this.getTiddler(title,context,userParams,callback);
+};
+
+TrivialAdaptor.prototype.generateTiddlerInfo = function(tiddler)
+{
+	var info = {};
+	info.uri = tiddler.fields['server.host'] + &quot;#&quot; + tiddler.title;
+	return info;
+};
+
+TrivialAdaptor.prototype.getTiddler = function(title,context,userParams,callback)
+{
+	console.log(&quot;Jim getTiddler &quot; + title + &quot; &quot; + context);
+	context = this.setContext(context,userParams,callback);
+	context.title = title;
+	context.complete = TrivialAdaptor.getTiddlerComplete;
+	return context.complete(context,context.userParams);
+};
+
+TrivialAdaptor.getTiddlerComplete = function(context,userParams)
+{
+	if(context.title == &quot;trivial1&quot; || context.title == &quot;trivial2&quot;) {
+		t = new Tiddler(context.title);
+		t.fields['server.type'] = TrivialAdaptor.serverType;
+		t.fields['server.workspace'] = &quot;default&quot;;
+		t.fields['server.page.revision'] = &quot;2&quot;;
+		t.fields['server.host'] = &quot;none&quot;;
+		t.text = &quot;Fake text for &quot; + context.title
+		t.tags = [];
+		t.modifier = &quot;modifier&quot;;
+		t.modified = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
+		t.created = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
+		context.tiddler = t
+		context.status = true;
+	} else {
+		context.statusText = &quot;unknown tiddler: &quot; + context.title
+		context.status = false;
+	}
+	if(context.allowSynchronous) {
+		context.isSynchronous = true;
+		context.callback(context,userParams);
+	} else {
+		window.setTimeout(function() {context.callback(context,userParams);},10);
+	}
+	return true;
+};
+
+
+TrivialAdaptor.prototype.putTiddler = function(tiddler,context,userParams,callback)
+{
+	console.log(&quot;Jim putTiddler &quot; + tiddler.title);
+	context = this.setContext(context,userParams,callback);
+	context.title = tiddler.title;
+	context.status = true;
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+	return true;
+};
+
+config.adaptors[TrivialAdaptor.serverType] = TrivialAdaptor;
+
+//}}}</pre>
+</div>
 </div>
 <!--POST-STOREAREA-->
 <!--POST-BODY-START-->
