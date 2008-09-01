@@ -518,6 +518,12 @@ Also see AdvancedOptions</pre>
 <div title="trivial2" modifier="JimPick" created="200808142045" server.host="none" server.page.revision="1" server.type="trivial" changecount="1" server.workspace="default">
 <pre>trivial 2</pre>
 </div>
+<div title="dbtest1" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="0" server.workspace="default">
+<pre>Loaded from HTML</pre>
+</div>
+<div title="dbtest2" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="1" server.workspace="default">
+<pre>Loaded from HTML</pre>
+</div>
 <div title="TrivialAdaptorPlugin" modifier="JimPick" created="200808141600" modified="200808141601" tags="systemConfig" changecount="1">
 <pre>//{{{
 
@@ -635,6 +641,126 @@ TrivialAdaptor.prototype.putTiddler = function(tiddler,context,userParams,callba
 };
 
 config.adaptors[TrivialAdaptor.serverType] = TrivialAdaptor;
+
+//}}}</pre>
+</div>
+<div title="HTML5DatabaseAdaptorPlugin" created="200809010329">
+<pre>//{{{
+
+// Borrows liberally from TiddlyWebAdaptorPlugin and FileAdaptor
+
+function HTML5DatabaseAdaptor()
+{
+}
+
+HTML5DatabaseAdaptor.prototype = new AdaptorBase();
+
+HTML5DatabaseAdaptor.serverType = 'html5db'; // MUST BE LOWER CASE
+
+HTML5DatabaseAdaptor.prototype.getWorkspaceList = function(context,userParams,callback)
+{
+	console.log(&quot;Jim1: getWorkspaceList &quot; + context)
+	context = this.setContext(context,userParams,callback);
+        context.workspaces = [{title:&quot;(default)&quot;}];
+        context.status = true;
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+        return true;
+};
+
+HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,callback)
+{
+	console.log(&quot;Jim1: getTiddlerList &quot; + context)
+	context = this.setContext(context,userParams,callback);
+
+	context.tiddlers = [];
+
+	tiddler1 = new Tiddler(&quot;trivial1&quot;);
+	tiddler1.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+	tiddler1.fields['server.workspace'] = &quot;default&quot;;
+	tiddler1.fields['server.page.revision'] = &quot;2&quot;;
+	context.tiddlers.push(tiddler1);
+
+	tiddler2 = new Tiddler(&quot;trivial2&quot;);
+	tiddler2.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+	tiddler2.fields['server.workspace'] = &quot;default&quot;;
+	tiddler2.fields['server.page.revision'] = &quot;1&quot;;
+	context.tiddlers.push(tiddler2);
+
+	context.status = true;
+
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+
+	return true;
+};
+
+HTML5DatabaseAdaptor.prototype.getTiddlerRevision = function(title,revision,context,userParams,callback)
+{
+	context = this.setContext(context,userParams,callback);
+	if(revision) {
+		context.revision = revision;
+	}
+	return this.getTiddler(title,context,userParams,callback);
+};
+
+HTML5DatabaseAdaptor.prototype.generateTiddlerInfo = function(tiddler)
+{
+	var info = {};
+	info.uri = tiddler.fields['server.host'] + &quot;#&quot; + tiddler.title;
+	return info;
+};
+
+HTML5DatabaseAdaptor.prototype.getTiddler = function(title,context,userParams,callback)
+{
+	console.log(&quot;Jim getTiddler &quot; + title + &quot; &quot; + context);
+	context = this.setContext(context,userParams,callback);
+	context.title = title;
+	context.complete = HTML5DatabaseAdaptor.getTiddlerComplete;
+	return context.complete(context,context.userParams);
+};
+
+HTML5DatabaseAdaptor.getTiddlerComplete = function(context,userParams)
+{
+	if(context.title == &quot;trivial1&quot; || context.title == &quot;trivial2&quot;) {
+		t = new Tiddler(context.title);
+		t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+		t.fields['server.workspace'] = &quot;default&quot;;
+		t.fields['server.page.revision'] = &quot;2&quot;;
+		t.fields['server.host'] = &quot;none&quot;;
+		t.text = &quot;Fake text for &quot; + context.title
+		t.tags = [];
+		t.modifier = &quot;modifier&quot;;
+		t.modified = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
+		t.created = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
+		context.tiddler = t
+		context.status = true;
+	} else {
+		context.statusText = &quot;unknown tiddler: &quot; + context.title
+		context.status = false;
+	}
+	if(context.allowSynchronous) {
+		context.isSynchronous = true;
+		context.callback(context,userParams);
+	} else {
+		window.setTimeout(function() {context.callback(context,userParams);},10);
+	}
+	return true;
+};
+
+
+HTML5DatabaseAdaptor.prototype.putTiddler = function(tiddler,context,userParams,callback)
+{
+	console.log(&quot;Jim putTiddler &quot; + tiddler.title);
+	context = this.setContext(context,userParams,callback);
+	context.title = tiddler.title;
+	context.status = true;
+        if(callback)
+                window.setTimeout(function() {callback(context,userParams);},10);
+	return true;
+};
+
+config.adaptors[HTML5DatabaseAdaptor.serverType] = HTML5DatabaseAdaptor;
 
 //}}}</pre>
 </div>
