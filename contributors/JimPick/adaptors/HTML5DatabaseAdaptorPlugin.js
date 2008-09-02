@@ -29,25 +29,23 @@ HTML5DatabaseAdaptor.serverType = 'html5db'; // MUST BE LOWER CASE
 HTML5DatabaseAdaptor.dbConnectOrCreate = function(callback)
 {
 	// FIXME: too much nesting
-	db.transaction(
-		function(tx) {
-			tx.executeSql("SELECT COUNT(*) FROM Tiddlers",
-				[],
-				function(result) {
-					callback();
-				},
-				function(tx, error) {
-					tx.executeSql(
-						"CREATE TABLE Tiddlers (title TEXT UNIQUE, text TEXT, revision INTEGER)", 
-						[],
-						function(result) {
-							callback();
-						}
-					);
-				}
-			);
-		}
-	);
+	db.transaction(function(tx) {
+		tx.executeSql("SELECT COUNT(*) FROM Tiddlers",
+			[],
+			function(result) {
+				callback();
+			},
+			function(tx, error) {
+				tx.executeSql(
+					"CREATE TABLE Tiddlers (title TEXT UNIQUE, text TEXT, revision INTEGER)", 
+					[],
+					function(result) {
+						callback();
+					}
+				);
+			}
+		);
+	});
 }
 
 HTML5DatabaseAdaptor.prototype.getWorkspaceList = function(context,userParams,callback)
@@ -67,11 +65,21 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 
 	context.tiddlers = [];
 
-	HTML5DatabaseAdaptor.dbConnectOrCreate(
-		function() {
-			// FIXME: Get Tiddlers
-		}
-	);
+	HTML5DatabaseAdaptor.dbConnectOrCreate(function() {}); // FIXME: Remove callback
+
+	db.transaction(function(tx) {
+		tx.executeSql("SELECT rowid, title, text, revision FROM Tiddlers",
+			[],
+			function(tx, result) {
+			// Process results
+				for (var i = 0; i < result.rows.length; ++i) {
+					var row = result.rows.item(i);
+					alert("Jim3: " + row['title']);
+				}
+			}
+
+		);
+	});
 	tiddler1 = new Tiddler("trivial1");
 	tiddler1.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
 	tiddler1.fields['server.workspace'] = "default";
@@ -155,7 +163,8 @@ HTML5DatabaseAdaptor.prototype.putTiddler = function(tiddler,context,userParams,
 	} else {
 		db.transaction(
 			function (tx) {
-				tx.executeSql("INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)", [tiddler.text, tiddler.text, 1]);
+				tx.executeSql("INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)", [tiddler.title, tiddler.text, 1]);
+				alert("Jim4: " + tiddler.title);
 			}
 		);
 	}
