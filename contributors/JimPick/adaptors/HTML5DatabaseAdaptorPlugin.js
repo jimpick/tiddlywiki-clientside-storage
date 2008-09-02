@@ -26,22 +26,18 @@ HTML5DatabaseAdaptor.prototype = new AdaptorBase();
 
 HTML5DatabaseAdaptor.serverType = 'html5db'; // MUST BE LOWER CASE
 
-HTML5DatabaseAdaptor.dbConnectOrCreate = function(callback)
+HTML5DatabaseAdaptor.dbCreateIfMissing = function()
 {
 	// FIXME: too much nesting
 	db.transaction(function(tx) {
 		tx.executeSql("SELECT COUNT(*) FROM Tiddlers",
 			[],
-			function(result) {
-				callback();
-			},
+			{},  // Do nothing on success
 			function(tx, error) {
 				tx.executeSql(
 					"CREATE TABLE Tiddlers (title TEXT UNIQUE, text TEXT, revision INTEGER)", 
 					[],
-					function(result) {
-						callback();
-					}
+					{} // Do nothing on success
 				);
 			}
 		);
@@ -65,7 +61,7 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 
 	context.tiddlers = [];
 
-	HTML5DatabaseAdaptor.dbConnectOrCreate(function() {}); // FIXME: Remove callback
+	HTML5DatabaseAdaptor.dbCreateIfMissing();
 
 	db.transaction(function(tx) {
 		tx.executeSql("SELECT rowid, title, text, revision FROM Tiddlers",
