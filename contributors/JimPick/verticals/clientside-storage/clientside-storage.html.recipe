@@ -2,5 +2,4 @@ recipe: ../../../../core/tiddlywiki.html.recipe
 recipe: shadows/split.recipe
 recipe: tiddlers/split.recipe
 recipe: plugins/split.recipe
-tiddler: ../../adaptors/TrivialAdaptorPlugin.js
 tiddler: ../../adaptors/HTML5DatabaseAdaptorPlugin.js
