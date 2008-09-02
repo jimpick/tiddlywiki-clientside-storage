@@ -727,23 +727,17 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 			// Process results
 				for (var i = 0; i &lt; result.rows.length; ++i) {
 					var row = result.rows.item(i);
-					alert(&quot;Jim3: &quot; + row['title']);
+					// alert(&quot;Jim: &quot; + row['title']);
+					t = new Tiddler(row['title']);
+					t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+					t.fields['server.workspace'] = &quot;default&quot;;
+					t.fields['server.page.revision'] = row['revision'];
+					context.tiddlers.push(t);
 				}
 			}
 
 		);
 	});
-	tiddler1 = new Tiddler(&quot;trivial1&quot;);
-	tiddler1.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
-	tiddler1.fields['server.workspace'] = &quot;default&quot;;
-	tiddler1.fields['server.page.revision'] = &quot;2&quot;;
-	context.tiddlers.push(tiddler1);
-
-	tiddler2 = new Tiddler(&quot;trivial2&quot;);
-	tiddler2.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
-	tiddler2.fields['server.workspace'] = &quot;default&quot;;
-	tiddler2.fields['server.page.revision'] = &quot;1&quot;;
-	context.tiddlers.push(tiddler2);
 
 	context.status = true;
 
