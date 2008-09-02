@@ -1,18 +1,57 @@
 //{{{
 
+// The following code came from WebKit HTML 5 SQL Storage Notes Demo
+
+var db;
+
+try {
+	if (window.openDatabase) {
+		// FIXME: Need to use unique names here so TiddlyWiki's loaded
+		// from file: urls will have separate databases.
+		db = openDatabase("TiddlyWiki", "1.0", "TiddlyWiki", 200000);
+		if (!db)
+			alert("Failed to open the database on disk.  This is probably because the version was bad or there is not enough space left in this domain's quota");
+		} else
+			alert("Couldn't open the database.  Please try with a WebKit nightly with this feature enabled");
+} catch(err) { }
+
 // Borrows liberally from TiddlyWebAdaptorPlugin and FileAdaptor
 
 function HTML5DatabaseAdaptor()
 {
 }
 
+
 HTML5DatabaseAdaptor.prototype = new AdaptorBase();
 
 HTML5DatabaseAdaptor.serverType = 'html5db'; // MUST BE LOWER CASE
 
+HTML5DatabaseAdaptor.dbConnectOrCreate = function(callback)
+{
+	// FIXME: too much nesting
+	db.transaction(
+		function(tx) {
+			tx.executeSql("SELECT COUNT(*) FROM Tiddlers",
+				[],
+				function(result) {
+					callback();
+				},
+				function(tx, error) {
+					tx.executeSql(
+						"CREATE TABLE Tiddlers (title TEXT UNIQUE, text TEXT, revision INTEGER)", 
+						[],
+						function(result) {
+							callback();
+						}
+					);
+				}
+			);
+		}
+	);
+}
+
 HTML5DatabaseAdaptor.prototype.getWorkspaceList = function(context,userParams,callback)
 {
-	console.log("Jim1: getWorkspaceList " + context)
 	context = this.setContext(context,userParams,callback);
         context.workspaces = [{title:"(default)"}];
         context.status = true;
@@ -28,6 +67,11 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 
 	context.tiddlers = [];
 
+	HTML5DatabaseAdaptor.dbConnectOrCreate(
+		function() {
+			// FIXME: Get Tiddlers
+		}
+	);
 	tiddler1 = new Tiddler("trivial1");
 	tiddler1.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
 	tiddler1.fields['server.workspace'] = "default";
@@ -105,6 +149,17 @@ HTML5DatabaseAdaptor.getTiddlerComplete = function(context,userParams)
 HTML5DatabaseAdaptor.prototype.putTiddler = function(tiddler,context,userParams,callback)
 {
 	console.log("Jim putTiddler " + tiddler.title);
+
+	if(tiddler.fields['rowid']) {
+		// FIXME: Update
+	} else {
+		db.transaction(
+			function (tx) {
+				tx.executeSql("INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)", [tiddler.text, tiddler.text, 1]);
+			}
+		);
+	}
+
 	context = this.setContext(context,userParams,callback);
 	context.title = tiddler.title;
 	context.status = true;
