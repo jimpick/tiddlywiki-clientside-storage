@@ -1,0 +1,18 @@
+<div title="Ideas" modifier="JimPick" created="200809021645" changecount="2">
+<pre>Storing local tiddlers without the DOM would be useful for:
+
+* Online wikis that want to have some offline edit capability -- with optional syncing back to the master server
+* Offline wikis and vertical applications that have a lot of tiddlers, which would consume too much browser memory if they were all loaded into the DOM at one time
+
+The usage scenarios might be a little different for each case.
+
+The traditional way of getting a ~TiddlyWiki is for the user to go to http://tiddlywiki.com/ and click on the download link to save it as a single HTML file on the user's hard drive.
+
+An alternative might be to go to the master wiki site, and use the browser's offline capabilities plus client-side storage to have a local version.  An example of this style of application (using Google Gears) is http://rememberthemilk.com/
+
+I think that it's important to preserve the capability of saving a ~TiddlyWiki to the local hard drive.  A user might save for different reasons.  Presently, a user saves a ~TiddlyWiki so that they can have a editable working copy.  But if the editable working copy is actually an offline version of an online wiki, the reason for saving might instead be for exporting, or for backups, or to fork a wiki. 
+
+For extremely large wikis, it might be possible to create so much data in the client side SQL database store that it would be impossible to serialize it through the DOM into an HTML file.  It might be desirable to have the capability to save into multiple HTML files.
+
+It would be nice to have the ability to build vertical applications around a small single file HTML file that is immutable, but users would be able to create tiddlers and store them into their local SQL database.  Additionally, they could sync tiddlers and plugins from to and from online sources.  Optionally, they would be able to use filesystem access to save backups or export data.</pre>
+</div>

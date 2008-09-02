@@ -1,0 +1,7 @@
+<div title="Issues" modifier="JimPick" created="200809021623" changecount="2">
+<pre>* Currently only syncs title, text, and revision number -- other fields, modification/creation times, tags, etc. are faked
+* User must manually sync
+* Data is stored twice - once inside DOM and once inside database
+
+See also: [[Ideas]]</pre>
+</div>

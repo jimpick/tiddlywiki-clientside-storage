@@ -518,6 +518,95 @@ Also see AdvancedOptions</pre>
 <div title="dbtest2" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="0" server.workspace="default">
 <pre>Loaded from HTML</pre>
 </div>
+<div title="DefaultTiddlers" modifier="YourName" created="200809021432" changecount="2">
+<pre>[[Introduction]]
+
+[[dbtest1]]
+[[dbtest2]]</pre>
+</div>
+<div title="HTML5 database storage" modifier="YourName" created="200809021448" modified="200809021452" changecount="12">
+<pre>The specification:
+
+http://www.whatwg.org/specs/web-apps/current-work/multipage/structured.html#sql
+
+Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/] and on the iPhone.
+
+~WebKit demo:
+
+http://webkit.org/misc/DatabaseExample.html
+
+Additional links:
+
+* http://code.google.com/p/gears/wiki/Database2API  (proposal for adding support for the API to Google Gears)
+* http://jsgt.org/mt/archives/01/002157.html  (some documentation in Japanese)</pre>
+</div>
+<div title="Introduction" modifier="JimPick" created="200809021433" modified="200809021618" changecount="25">
+<pre>This ~TiddlyWiki 'vertical' demonstrates using client-side storage inside the web browser to store ~TiddlyWiki 'tiddlers'.
+
+Currently, only [[HTML5 database storage]] is supported.  That means that this demo will currently only work with a [[WebKit nightly build|http://nightly.webkit.org/]] -- or an iPhone.  In the future, as the ~HTML5 standard develops, more browsers will hopefully implement database storage.
+
+This demo can be found at: [[http://jimpick.com/test/clientside-storage.html]]
+The source code is at:  [[http://github.com/jpick/tiddlywiki-clientside-storage/tree/master]]
+The license is the same as ~TiddlyWiki
+
+''Understanding the demo''
+
+The implementation at this point in time is extremely minimal and crude.  It has many [[Issues]].  It is not yet good enough to replace the default way of storing tiddlers in a ~TiddlyWiki.  Instead, what it does is provide a new 'adaptor' with which you can sync your individual tiddlers using ~TiddlyWiki's built-in sync facility.
+
+''Running the demo''
+
+''Step 1 - View Preloaded Content''
+
+If this your first time loading this ~TiddlyWiki, you will see two tiddlers below ([[dbtest1]] and [[dbtest2]]).  These have been saved into the HTML file with some default content (the text should say &quot;Loaded from HTML&quot;).  If you click on 'more' -&gt; 'syncing', you can see that they have been set up to sync with a new 'html5db' server-type (not really a server at all, as it's on the client, see the implementation in [[HTML5DatabaseAdaptorPlugin]]).
+
+Currently, there is no method to setup a new tiddler to sync to the database, so you will have to use the pre-defined [[dbtest1]] and [[dbtest2]] tiddlers for now.
+
+''Step 2 - Sync the preloaded tiddlers to the browser client-side database''
+
+Click on the &quot;backstage&quot; button on the upper-right of your screen.  Then click on the &quot;sync&quot; submenu.  A panel should drop down, showing both the [[dbtest1]] and [[dbtest2]] tidders.  Each row should be coloured yellow, and have the Synchronization Status of &quot;Not found on server&quot;.
+
+Simply check off the boxes, and click on the 'Sync' button on the bottom to store the content from the preloaded tiddlers into the SQL database built into your browser.  The rows should change to pink, and the Synchronization Status should change to &quot;Saved update on server&quot;.
+
+''Step 3 (Optional) - Verify that the database was created in your browser''
+
+If you are using WebKit, you can go to &quot;Preferences&quot; -&gt; &quot;Security&quot; -&gt; &quot;Show Databases&quot;.  From that screen, you can view all the SQL databases managed by your browser, change their sizes, or delete them.  For now, just verify that a database named 'TiddlyWiki' has been created under the domain name you loaded the file from (or the local filesystem).
+
+''Step 4 - Modify some content''
+
+Try changing the text for [[dbtest1]] to something new (eg. 'Edited by hand').
+
+''Step 5 - Sync changed content to the browser client-side database''
+
+As before, click on &quot;backstage&quot; -&gt; &quot;sync&quot;.  The rows with the changed content should be coloured green, and the Synchronization Status should say 'Changed while unplugged'.  After clicking the 'Sync' button, the synchronized rows will turn pink, and the Synchronization Status will change to 'Saved update on server'.
+
+At this point, your modified content is saved in the browser.
+
+''Step 6 - Reload Web Page and restore modified content with a sync''
+
+To verify that the content is indeed saved in the database, reload the web page.  After reloading the web page, the content of the [[dbtest1]] tiddler will be reverted to the preloaded content (eg. &quot;Loaded from HTML&quot;).  Note: If you had saved the ~TiddlyWiki to a file, and then used &quot;Saved Changed&quot;, the preloaded content may be different.
+
+Now, go to &quot;backstage&quot; -&gt; &quot;sync&quot; and do a sync.  The modified content should get restored.
+
+''The End''</pre>
+</div>
+<div title="MainMenu" modifier="JimPick" created="200809021431" modified="200809021624" changecount="4">
+<pre>[[Introduction]]
+
+Demo:
+
+[[dbtest1]]
+[[dbtest2]]
+
+Docs:
+
+[[HTML5 DB Storage|HTML5 database storage]]
+[[Issues]]
+[[Ideas]]
+
+Standard stuff:
+
+[[GettingStarted]]</pre>
+</div>
 <div title="ConfigTweaks" modifier="JimPick" created="200809020059" modified="" tags="systemConfig" changecount="1">
 <pre>//{{{
 config.options.chkAutoSave = false;

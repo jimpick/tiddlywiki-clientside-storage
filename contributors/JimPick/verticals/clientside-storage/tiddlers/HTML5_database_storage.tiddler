@@ -1,0 +1,16 @@
+<div title="HTML5 database storage" modifier="YourName" created="200809021448" modified="200809021452" changecount="12">
+<pre>The specification:
+
+http://www.whatwg.org/specs/web-apps/current-work/multipage/structured.html#sql
+
+Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/] and on the iPhone.
+
+~WebKit demo:
+
+http://webkit.org/misc/DatabaseExample.html
+
+Additional links:
+
+* http://code.google.com/p/gears/wiki/Database2API  (proposal for adding support for the API to Google Gears)
+* http://jsgt.org/mt/archives/01/002157.html  (some documentation in Japanese)</pre>
+</div>
