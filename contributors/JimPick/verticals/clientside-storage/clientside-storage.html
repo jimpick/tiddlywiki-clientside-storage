@@ -518,11 +518,17 @@ Also see AdvancedOptions</pre>
 <div title="trivial2" modifier="JimPick" created="200808142045" server.host="none" server.page.revision="1" server.type="trivial" changecount="1" server.workspace="default">
 <pre>trivial 2</pre>
 </div>
-<div title="dbtest1" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="0" server.workspace="default">
+<div title="dbtest1" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="1" server.workspace="default">
 <pre>Loaded from HTML</pre>
 </div>
 <div title="dbtest2" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="1" server.workspace="default">
 <pre>Loaded from HTML</pre>
+</div>
+<div title="ConfigTweaks" modifier="JimPick" created="200809020059" modified="" tags="systemConfig" changecount="1">
+<pre>//{{{
+config.options.chkHttpReadOnly = false;
+readOnly = false;
+//}}}</pre>
 </div>
 <div title="TrivialAdaptorPlugin" modifier="JimPick" created="200808141600" modified="200808141601" tags="systemConfig" changecount="1">
 <pre>//{{{
@@ -644,7 +650,7 @@ config.adaptors[TrivialAdaptor.serverType] = TrivialAdaptor;
 
 //}}}</pre>
 </div>
-<div title="HTML5DatabaseAdaptorPlugin" created="200809010329">
+<div title="HTML5DatabaseAdaptorPlugin" modifier="JimPick" created="200809011600" tags="systemConfig" changecount="1">
 <pre>//{{{
 
 // Borrows liberally from TiddlyWebAdaptorPlugin and FileAdaptor
