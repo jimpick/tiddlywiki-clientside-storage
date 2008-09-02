@@ -3,8 +3,8 @@
 
 Currently, only [[HTML5 database storage]] is supported.  That means that this demo will currently only work with a [[WebKit nightly build|http://nightly.webkit.org/]] -- or an iPhone.  In the future, as the ~HTML5 standard develops, more browsers will hopefully implement database storage.
 
-This demo can be found at: [[http://jimpick.com/test/clientside-storage.html]]
-The source code is at:  [[http://github.com/jpick/tiddlywiki-clientside-storage/tree/master]]
+This demo can be found at: http://jimpick.com/test/clientside-storage.html
+The source code is at:  http://github.com/jpick/tiddlywiki-clientside-storage/tree/master
 The license is the same as ~TiddlyWiki
 
 ''Understanding the demo''
