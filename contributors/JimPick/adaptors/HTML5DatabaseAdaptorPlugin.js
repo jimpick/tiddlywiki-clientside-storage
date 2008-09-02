@@ -56,7 +56,7 @@ HTML5DatabaseAdaptor.prototype.getWorkspaceList = function(context,userParams,ca
 
 HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,callback)
 {
-	console.log("Jim1: getTiddlerList " + context)
+	console.log("Jim1: getTiddlerList SQL " + context)
 	context = this.setContext(context,userParams,callback);
 
 	context.tiddlers = [];
@@ -64,28 +64,29 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 	HTML5DatabaseAdaptor.dbCreateIfMissing();
 
 	db.transaction(function(tx) {
-		tx.executeSql("SELECT rowid, title, text, revision FROM Tiddlers",
+		tx.executeSql("SELECT title, text, revision FROM Tiddlers",
 			[],
 			function(tx, result) {
 			// Process results
 				for (var i = 0; i < result.rows.length; ++i) {
 					var row = result.rows.item(i);
-					// alert("Jim: " + row['title']);
+					console.log("Jim: SQL has " + row['title']);
 					t = new Tiddler(row['title']);
 					t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
 					t.fields['server.workspace'] = "default";
 					t.fields['server.page.revision'] = row['revision'];
 					context.tiddlers.push(t);
+
 				}
+
+				context.status = true;
+
+				if(callback)
+					window.setTimeout(function() {callback(context,userParams);},10);
 			}
 
 		);
 	});
-
-	context.status = true;
-
-        if(callback)
-                window.setTimeout(function() {callback(context,userParams);},10);
 
 	return true;
 };
@@ -117,29 +118,50 @@ HTML5DatabaseAdaptor.prototype.getTiddler = function(title,context,userParams,ca
 
 HTML5DatabaseAdaptor.getTiddlerComplete = function(context,userParams)
 {
-	if(context.title == "trivial1" || context.title == "trivial2") {
-		t = new Tiddler(context.title);
-		t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
-		t.fields['server.workspace'] = "default";
-		t.fields['server.page.revision'] = "2";
-		t.fields['server.host'] = "none";
-		t.text = "Fake text for " + context.title
-		t.tags = [];
-		t.modifier = "modifier";
-		t.modified = Date.convertFromYYYYMMDDHHMM("200808191720");
-		t.created = Date.convertFromYYYYMMDDHHMM("200808191720");
-		context.tiddler = t
-		context.status = true;
-	} else {
-		context.statusText = "unknown tiddler: " + context.title
-		context.status = false;
-	}
-	if(context.allowSynchronous) {
-		context.isSynchronous = true;
-		context.callback(context,userParams);
-	} else {
-		window.setTimeout(function() {context.callback(context,userParams);},10);
-	}
+	var t;
+	// FIXME: Too much indenting
+	db.transaction(function(tx) {
+		tx.executeSql("SELECT title, text, revision FROM Tiddlers WHERE title = ?",
+			[context.title],
+			// Success
+			function(tx, result) {
+				// Process results
+				if(result.rows.length == 1) {
+					var row = result.rows.item(0);
+					t = new Tiddler(context.title);
+					t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+					t.fields['server.workspace'] = "default";
+					t.fields['server.page.revision'] = row['revision'];
+					t.fields['server.host'] = "none";
+					t.text = row['text'];
+					t.tags = [];
+					t.modifier = "modifier";
+					t.modified = Date.convertFromYYYYMMDDHHMM("200809021200");
+					t.created = Date.convertFromYYYYMMDDHHMM("200809021200");
+					context.tiddler = t
+					context.status = true;
+					if(context.allowSynchronous) {
+						context.isSynchronous = true;
+						context.callback(context,userParams);
+					} else {
+						window.setTimeout(function() {context.callback(context,userParams);},10);
+					}
+				} else if(results.rows.length == 0) {
+					context.statusText = "unknown tiddler: " + context.title
+					context.status = false;
+				} else {
+					context.statusText = "too many results for tiddler: " + context.title
+					context.status = false;
+				}
+			},
+			// Failure 
+			function(tx, error) {
+				context.statusText = "SQL error for tiddler: " + context.title + " " + error
+				context.status = false;
+			}
+
+		);
+	});
 	return true;
 };
 
@@ -148,24 +170,53 @@ HTML5DatabaseAdaptor.prototype.putTiddler = function(tiddler,context,userParams,
 {
 	console.log("Jim putTiddler " + tiddler.title);
 
-	if(tiddler.fields['rowid']) {
-		// FIXME: Update
-	} else {
-		db.transaction(
-			function (tx) {
-				tx.executeSql("INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)", [tiddler.title, tiddler.text, 1]);
-				alert("Jim4: " + tiddler.title);
-			}
-		);
-	}
-
 	context = this.setContext(context,userParams,callback);
 	context.title = tiddler.title;
-	context.status = true;
-        if(callback)
-                window.setTimeout(function() {callback(context,userParams);},10);
+
+	db.transaction(function(tx) {
+		HTML5DatabaseAdaptor.dbInsertOrUpdate(tx,
+			tiddler,
+			context,
+			// Success
+			function(tx, result) {
+				tiddler.fields['server.page.revision'] = tiddler.fields['server.page.revision'] - 0 + 1	
+				context.status = true;
+				if(callback) {
+					window.setTimeout(function() {
+						callback(context,userParams);
+					}, 10);
+				}
+			}
+		);
+	});
+
 	return true;
 };
+
+HTML5DatabaseAdaptor.dbInsertOrUpdate = function(tx,tiddler,context,onSuccess)
+{
+	// Try insert first
+	console.log("Jim: insert " + tiddler.title);
+	tx.executeSql("INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)",
+		[tiddler.title, tiddler.text, tiddler.fields['server.page.revision'] - 0 + 1],
+		// Success
+		onSuccess,
+		// Failure, try update
+		function(tx, error) {
+			console.log("Jim: fallback to update " + tiddler.title);
+			tx.executeSql("UPDATE Tiddlers SET text = ?, revision = ? WHERE title = ?",
+				[tiddler.text, tiddler.fields['server.page.revision'] - 0 + 1, tiddler.title],
+				onSuccess(),
+				// Failure
+				function(tx, result) {
+					console.log("Jim: update failed " + context.title);
+					context.statusText = "update failed: " + context.title
+					context.status = false;
+				}
+			);
+		}
+	);
+}
 
 config.adaptors[HTML5DatabaseAdaptor.serverType] = HTML5DatabaseAdaptor;
 

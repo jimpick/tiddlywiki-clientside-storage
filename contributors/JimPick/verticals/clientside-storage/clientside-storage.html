@@ -518,14 +518,15 @@ Also see AdvancedOptions</pre>
 <div title="trivial2" modifier="JimPick" created="200808142045" server.host="none" server.page.revision="1" server.type="trivial" changecount="1" server.workspace="default">
 <pre>trivial 2</pre>
 </div>
-<div title="dbtest1" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="1" server.workspace="default">
+<div title="dbtest1" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="0" server.workspace="default">
 <pre>Loaded from HTML</pre>
 </div>
-<div title="dbtest2" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="1" server.workspace="default">
+<div title="dbtest2" modifier="JimPick" created="200809011600" server.host="none" server.page.revision="1" server.type="html5db" changecount="0" server.workspace="default">
 <pre>Loaded from HTML</pre>
 </div>
 <div title="ConfigTweaks" modifier="JimPick" created="200809020059" modified="" tags="systemConfig" changecount="1">
 <pre>//{{{
+config.options.chkAutoSave = false;
 config.options.chkHttpReadOnly = false;
 readOnly = false;
 //}}}</pre>
@@ -709,7 +710,7 @@ HTML5DatabaseAdaptor.prototype.getWorkspaceList = function(context,userParams,ca
 
 HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,callback)
 {
-	console.log(&quot;Jim1: getTiddlerList &quot; + context)
+	console.log(&quot;Jim1: getTiddlerList SQL &quot; + context)
 	context = this.setContext(context,userParams,callback);
 
 	context.tiddlers = [];
@@ -717,28 +718,29 @@ HTML5DatabaseAdaptor.prototype.getTiddlerList = function(context,userParams,call
 	HTML5DatabaseAdaptor.dbCreateIfMissing();
 
 	db.transaction(function(tx) {
-		tx.executeSql(&quot;SELECT rowid, title, text, revision FROM Tiddlers&quot;,
+		tx.executeSql(&quot;SELECT title, text, revision FROM Tiddlers&quot;,
 			[],
 			function(tx, result) {
 			// Process results
 				for (var i = 0; i &lt; result.rows.length; ++i) {
 					var row = result.rows.item(i);
-					// alert(&quot;Jim: &quot; + row['title']);
+					console.log(&quot;Jim: SQL has &quot; + row['title']);
 					t = new Tiddler(row['title']);
 					t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
 					t.fields['server.workspace'] = &quot;default&quot;;
 					t.fields['server.page.revision'] = row['revision'];
 					context.tiddlers.push(t);
+
 				}
+
+				context.status = true;
+
+				if(callback)
+					window.setTimeout(function() {callback(context,userParams);},10);
 			}
 
 		);
 	});
-
-	context.status = true;
-
-        if(callback)
-                window.setTimeout(function() {callback(context,userParams);},10);
 
 	return true;
 };
@@ -770,29 +772,50 @@ HTML5DatabaseAdaptor.prototype.getTiddler = function(title,context,userParams,ca
 
 HTML5DatabaseAdaptor.getTiddlerComplete = function(context,userParams)
 {
-	if(context.title == &quot;trivial1&quot; || context.title == &quot;trivial2&quot;) {
-		t = new Tiddler(context.title);
-		t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
-		t.fields['server.workspace'] = &quot;default&quot;;
-		t.fields['server.page.revision'] = &quot;2&quot;;
-		t.fields['server.host'] = &quot;none&quot;;
-		t.text = &quot;Fake text for &quot; + context.title
-		t.tags = [];
-		t.modifier = &quot;modifier&quot;;
-		t.modified = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
-		t.created = Date.convertFromYYYYMMDDHHMM(&quot;200808191720&quot;);
-		context.tiddler = t
-		context.status = true;
-	} else {
-		context.statusText = &quot;unknown tiddler: &quot; + context.title
-		context.status = false;
-	}
-	if(context.allowSynchronous) {
-		context.isSynchronous = true;
-		context.callback(context,userParams);
-	} else {
-		window.setTimeout(function() {context.callback(context,userParams);},10);
-	}
+	var t;
+	// FIXME: Too much indenting
+	db.transaction(function(tx) {
+		tx.executeSql(&quot;SELECT title, text, revision FROM Tiddlers WHERE title = ?&quot;,
+			[context.title],
+			// Success
+			function(tx, result) {
+				// Process results
+				if(result.rows.length == 1) {
+					var row = result.rows.item(0);
+					t = new Tiddler(context.title);
+					t.fields['server.type'] = HTML5DatabaseAdaptor.serverType;
+					t.fields['server.workspace'] = &quot;default&quot;;
+					t.fields['server.page.revision'] = row['revision'];
+					t.fields['server.host'] = &quot;none&quot;;
+					t.text = row['text'];
+					t.tags = [];
+					t.modifier = &quot;modifier&quot;;
+					t.modified = Date.convertFromYYYYMMDDHHMM(&quot;200809021200&quot;);
+					t.created = Date.convertFromYYYYMMDDHHMM(&quot;200809021200&quot;);
+					context.tiddler = t
+					context.status = true;
+					if(context.allowSynchronous) {
+						context.isSynchronous = true;
+						context.callback(context,userParams);
+					} else {
+						window.setTimeout(function() {context.callback(context,userParams);},10);
+					}
+				} else if(results.rows.length == 0) {
+					context.statusText = &quot;unknown tiddler: &quot; + context.title
+					context.status = false;
+				} else {
+					context.statusText = &quot;too many results for tiddler: &quot; + context.title
+					context.status = false;
+				}
+			},
+			// Failure 
+			function(tx, error) {
+				context.statusText = &quot;SQL error for tiddler: &quot; + context.title + &quot; &quot; + error
+				context.status = false;
+			}
+
+		);
+	});
 	return true;
 };
 
@@ -801,24 +824,53 @@ HTML5DatabaseAdaptor.prototype.putTiddler = function(tiddler,context,userParams,
 {
 	console.log(&quot;Jim putTiddler &quot; + tiddler.title);
 
-	if(tiddler.fields['rowid']) {
-		// FIXME: Update
-	} else {
-		db.transaction(
-			function (tx) {
-				tx.executeSql(&quot;INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)&quot;, [tiddler.title, tiddler.text, 1]);
-				alert(&quot;Jim4: &quot; + tiddler.title);
-			}
-		);
-	}
-
 	context = this.setContext(context,userParams,callback);
 	context.title = tiddler.title;
-	context.status = true;
-        if(callback)
-                window.setTimeout(function() {callback(context,userParams);},10);
+
+	db.transaction(function(tx) {
+		HTML5DatabaseAdaptor.dbInsertOrUpdate(tx,
+			tiddler,
+			context,
+			// Success
+			function(tx, result) {
+				tiddler.fields['server.page.revision'] = tiddler.fields['server.page.revision'] - 0 + 1	
+				context.status = true;
+				if(callback) {
+					window.setTimeout(function() {
+						callback(context,userParams);
+					}, 10);
+				}
+			}
+		);
+	});
+
 	return true;
 };
+
+HTML5DatabaseAdaptor.dbInsertOrUpdate = function(tx,tiddler,context,onSuccess)
+{
+	// Try insert first
+	console.log(&quot;Jim: insert &quot; + tiddler.title);
+	tx.executeSql(&quot;INSERT INTO Tiddlers (title, text, revision) VALUES (?, ?, ?)&quot;,
+		[tiddler.title, tiddler.text, tiddler.fields['server.page.revision'] - 0 + 1],
+		// Success
+		onSuccess,
+		// Failure, try update
+		function(tx, error) {
+			console.log(&quot;Jim: fallback to update &quot; + tiddler.title);
+			tx.executeSql(&quot;UPDATE Tiddlers SET text = ?, revision = ? WHERE title = ?&quot;,
+				[tiddler.text, tiddler.fields['server.page.revision'] - 0 + 1, tiddler.title],
+				onSuccess(),
+				// Failure
+				function(tx, result) {
+					console.log(&quot;Jim: update failed &quot; + context.title);
+					context.statusText = &quot;update failed: &quot; + context.title
+					context.status = false;
+				}
+			);
+		}
+	);
+}
 
 config.adaptors[HTML5DatabaseAdaptor.serverType] = HTML5DatabaseAdaptor;
 
