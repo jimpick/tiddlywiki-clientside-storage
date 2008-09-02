@@ -1,4 +1,4 @@
-<div title="Introduction" modifier="JimPick" created="200809021433" modified="200809021618" changecount="25">
+<div title="Introduction" modifier="JimPick" created="200809021433" modified="200809021652" changecount="27">
 <pre>This ~TiddlyWiki 'vertical' demonstrates using client-side storage inside the web browser to store ~TiddlyWiki 'tiddlers'.
 
 Currently, only [[HTML5 database storage]] is supported.  That means that this demo will currently only work with a [[WebKit nightly build|http://nightly.webkit.org/]] -- or an iPhone.  In the future, as the ~HTML5 standard develops, more browsers will hopefully implement database storage.
@@ -27,7 +27,7 @@ Simply check off the boxes, and click on the 'Sync' button on the bottom to stor
 
 ''Step 3 (Optional) - Verify that the database was created in your browser''
 
-If you are using WebKit, you can go to "Preferences" -> "Security" -> "Show Databases".  From that screen, you can view all the SQL databases managed by your browser, change their sizes, or delete them.  For now, just verify that a database named 'TiddlyWiki' has been created under the domain name you loaded the file from (or the local filesystem).
+If you are using ~WebKit, you can go to "Preferences" -> "Security" -> "Show Databases".  From that screen, you can view all the SQL databases managed by your browser, change their sizes, or delete them.  For now, just verify that a database named '~TiddlyWiki' has been created under the domain name you loaded the file from (or the local filesystem).
 
 ''Step 4 - Modify some content''
 

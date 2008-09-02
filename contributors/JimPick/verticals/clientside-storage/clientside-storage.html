@@ -524,12 +524,12 @@ Also see AdvancedOptions</pre>
 [[dbtest1]]
 [[dbtest2]]</pre>
 </div>
-<div title="HTML5 database storage" modifier="YourName" created="200809021448" modified="200809021452" changecount="12">
+<div title="HTML5 database storage" modifier="JimPick" created="200809021448" modified="200809021651" changecount="14">
 <pre>The specification:
 
 http://www.whatwg.org/specs/web-apps/current-work/multipage/structured.html#sql
 
-Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/] and on the iPhone.
+Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/]] and on the iPhone.
 
 ~WebKit demo:
 
@@ -540,7 +540,7 @@ Additional links:
 * http://code.google.com/p/gears/wiki/Database2API  (proposal for adding support for the API to Google Gears)
 * http://jsgt.org/mt/archives/01/002157.html  (some documentation in Japanese)</pre>
 </div>
-<div title="Introduction" modifier="JimPick" created="200809021433" modified="200809021618" changecount="25">
+<div title="Introduction" modifier="JimPick" created="200809021433" modified="200809021652" changecount="27">
 <pre>This ~TiddlyWiki 'vertical' demonstrates using client-side storage inside the web browser to store ~TiddlyWiki 'tiddlers'.
 
 Currently, only [[HTML5 database storage]] is supported.  That means that this demo will currently only work with a [[WebKit nightly build|http://nightly.webkit.org/]] -- or an iPhone.  In the future, as the ~HTML5 standard develops, more browsers will hopefully implement database storage.
@@ -569,7 +569,7 @@ Simply check off the boxes, and click on the 'Sync' button on the bottom to stor
 
 ''Step 3 (Optional) - Verify that the database was created in your browser''
 
-If you are using WebKit, you can go to &quot;Preferences&quot; -&gt; &quot;Security&quot; -&gt; &quot;Show Databases&quot;.  From that screen, you can view all the SQL databases managed by your browser, change their sizes, or delete them.  For now, just verify that a database named 'TiddlyWiki' has been created under the domain name you loaded the file from (or the local filesystem).
+If you are using ~WebKit, you can go to &quot;Preferences&quot; -&gt; &quot;Security&quot; -&gt; &quot;Show Databases&quot;.  From that screen, you can view all the SQL databases managed by your browser, change their sizes, or delete them.  For now, just verify that a database named '~TiddlyWiki' has been created under the domain name you loaded the file from (or the local filesystem).
 
 ''Step 4 - Modify some content''
 
@@ -606,6 +606,31 @@ Docs:
 Standard stuff:
 
 [[GettingStarted]]</pre>
+</div>
+<div title="Ideas" modifier="JimPick" created="200809021645" changecount="2">
+<pre>Storing local tiddlers without the DOM would be useful for:
+
+* Online wikis that want to have some offline edit capability -- with optional syncing back to the master server
+* Offline wikis and vertical applications that have a lot of tiddlers, which would consume too much browser memory if they were all loaded into the DOM at one time
+
+The usage scenarios might be a little different for each case.
+
+The traditional way of getting a ~TiddlyWiki is for the user to go to http://tiddlywiki.com/ and click on the download link to save it as a single HTML file on the user's hard drive.
+
+An alternative might be to go to the master wiki site, and use the browser's offline capabilities plus client-side storage to have a local version.  An example of this style of application (using Google Gears) is http://rememberthemilk.com/
+
+I think that it's important to preserve the capability of saving a ~TiddlyWiki to the local hard drive.  A user might save for different reasons.  Presently, a user saves a ~TiddlyWiki so that they can have a editable working copy.  But if the editable working copy is actually an offline version of an online wiki, the reason for saving might instead be for exporting, or for backups, or to fork a wiki. 
+
+For extremely large wikis, it might be possible to create so much data in the client side SQL database store that it would be impossible to serialize it through the DOM into an HTML file.  It might be desirable to have the capability to save into multiple HTML files.
+
+It would be nice to have the ability to build vertical applications around a small single file HTML file that is immutable, but users would be able to create tiddlers and store them into their local SQL database.  Additionally, they could sync tiddlers and plugins from to and from online sources.  Optionally, they would be able to use filesystem access to save backups or export data.</pre>
+</div>
+<div title="Issues" modifier="JimPick" created="200809021623" changecount="2">
+<pre>* Currently only syncs title, text, and revision number -- other fields, modification/creation times, tags, etc. are faked
+* User must manually sync
+* Data is stored twice - once inside DOM and once inside database
+
+See also: [[Ideas]]</pre>
 </div>
 <div title="ConfigTweaks" modifier="JimPick" created="200809020059" modified="" tags="systemConfig" changecount="1">
 <pre>//{{{

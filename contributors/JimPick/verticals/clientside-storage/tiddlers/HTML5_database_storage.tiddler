@@ -1,9 +1,9 @@
-<div title="HTML5 database storage" modifier="YourName" created="200809021448" modified="200809021452" changecount="12">
+<div title="HTML5 database storage" modifier="JimPick" created="200809021448" modified="200809021651" changecount="14">
 <pre>The specification:
 
 http://www.whatwg.org/specs/web-apps/current-work/multipage/structured.html#sql
 
-Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/] and on the iPhone.
+Currently implemented in the [[WebKit nightly builds|http://nightly.webkit.org/]] and on the iPhone.
 
 ~WebKit demo:
 
